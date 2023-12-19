@@ -24,7 +24,7 @@ const Index: FC<any> = ({ items, loading }) => {
     <div className='mb-3 mt-2'>
       <Slider {...settings}>
         {data?.map((m: any, index: any) => (
-          <div key={index} className='h-200px position-relative'>
+          <div key={index} className='h-350px position-relative'>
             <div
               className='h-100 mx-2 radius-15'
               style={{ background: `url(${m}) center / cover no-repeat` }}
