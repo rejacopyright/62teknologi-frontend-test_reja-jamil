@@ -6,21 +6,68 @@
       "dom.iterable",
       "esnext"
     ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
+    "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@pages/*": [
+        "./src/pages/*"
+      ],
+      "@api/*": [
+        "./src/_api/*"
+      ],
+      "@assets/*": [
+        "./src/_assets/*"
+      ],
+      "@images/*": [
+        "./src/_assets/images/*"
+      ],
+      "@components/*": [
+        "./src/_components/*"
+      ],
+      "@helpers": [
+        "./src/_helpers"
+      ],
+      "@styles/*": [
+        "./src/_styles/*"
+      ],
+    },
+    "allowUmdGlobalAccess": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "allowJs": true,
+    "checkJs": false,
+    "declaration": true,
+    "sourceMap": false,
+    "removeComments": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": false,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "allowUnusedLabels": true,
+    "allowUnreachableCode": true,
+    "skipLibCheck": true
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/_assets/*",
   ]
 }
