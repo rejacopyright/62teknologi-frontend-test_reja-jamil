@@ -8,7 +8,7 @@ import emptyImg from '@images/empty-box.png'
 import { debounce, mapValues, omit } from 'lodash'
 import qs from 'qs'
 import { ChangeEvent, FC, useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 interface BusinessListProps {
   items?: Array<any>
@@ -42,13 +42,8 @@ const Index: FC = () => {
   const [businessLoading, setBusinessLoading] = useState<boolean>(false)
   const [searchParams, setSearchParams]: any = useSearchParams({ location: '' })
   const [showModal, setShowModal] = useState<any>(false)
-  const [filters, setFilters] = useState<any>([])
   const formRef: any = useRef()
-  const navigate = useNavigate()
-  const { pathname } = useLocation()
-  const { location: keyword }: any = qs.parse(searchParams?.toString()) || {}
-  const query = qs.parse(searchParams?.toString(), { ignoreQueryPrefix: true })
-  const { page = 1 }: any = query
+  const query: any = qs.parse(searchParams?.toString(), { ignoreQueryPrefix: true })
 
   const onSearch = debounce(
     ({ target: { value } }: ChangeEvent & { target: HTMLInputElement }) => {
@@ -61,12 +56,12 @@ const Index: FC = () => {
 
   useEffect(() => {
     setBusinessLoading(true)
-    if (keyword) {
+    if (query?.location) {
       getBusiness({
-        ...filters,
-        location: keyword,
+        ...query,
+        // location: query?.keyword,
         limit: 10,
-        offset: ((page || 1) - 1) * 10,
+        offset: (parseInt(query?.page || 1) - 1) * 10,
       })
         .then(({ data: { businesses, total } }: any) => {
           setBusinesses(businesses)
@@ -78,14 +73,15 @@ const Index: FC = () => {
       setBusinessLoading(false)
       setBusinesses([])
     }
-  }, [keyword, page, filters])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams?.toString()])
 
   return (
     <div className='m-3'>
       <div className='row'>
         <div className='col'>
           <Searchbox
-            defaultValue={keyword}
+            defaultValue={query?.location || ''}
             loading={searchLoading}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const val = e?.target?.value
@@ -104,9 +100,10 @@ const Index: FC = () => {
             className='d-flex align-items-center justify-content-end fs-8'
             style={{ height: 30 }}
           >
-            {keyword && (
+            {query?.location && (
               <i>
-                Showing businesses for <span className='fw-bold'>&ldquo;{keyword}&rdquo;</span>
+                Showing businesses for{' '}
+                <span className='fw-bold'>&ldquo;{query?.location || ''}&rdquo;</span>
               </i>
             )}
           </div>
@@ -126,12 +123,17 @@ const Index: FC = () => {
             setShow={setShowModal}
             title={`Filter Business`}
             onReset={() => {
-              setFilters([])
+              const queries: any = qs.stringify({
+                location: query?.location || '',
+                page: 1,
+              })
+              setSearchParams(queries)
               setShowModal(false)
             }}
             onSubmit={() => {
-              setFilters(
-                mapValues(omit(formRef, 'current') || {}, ({ value }: any, key: any) => {
+              const filtered: any = mapValues(
+                omit(formRef, 'current') || {},
+                ({ value }: any, key: any) => {
                   let mapVal: any = value
                   if (value === 'true') {
                     mapVal = true
@@ -144,8 +146,11 @@ const Index: FC = () => {
                       ?.map(({ value }: any) => value)
                   }
                   return mapVal
-                })
+                }
               )
+              const queries: any = qs.stringify({ ...query, ...filtered, page: 1 })
+              setSearchParams(queries, { replace: true })
+              setMeta((prev: any) => ({ ...prev, page: 1 }))
               setShowModal(false)
             }}
             buttonText='Delete'
@@ -157,7 +162,7 @@ const Index: FC = () => {
                   <div className='mb-1'>Sort By</div>
                   <select
                     name=''
-                    defaultValue={filters?.sort_by}
+                    defaultValue={query?.sort_by}
                     className='form-select form-select-sm'
                     ref={(e: any) => (formRef['sort_by'] = e)}
                   >
@@ -171,7 +176,7 @@ const Index: FC = () => {
                   <div className='mb-1'>Radius</div>
                   <select
                     name=''
-                    defaultValue={filters?.radius}
+                    defaultValue={query?.radius}
                     className='form-select form-select-sm'
                     ref={(e: any) => (formRef['radius'] = e)}
                   >
@@ -188,7 +193,7 @@ const Index: FC = () => {
                   <div className='mb-1'>Category</div>
                   <select
                     name=''
-                    defaultValue={filters?.categories}
+                    defaultValue={query?.categories}
                     className='form-select form-select-sm'
                     ref={(e: any) => (formRef['categories'] = e)}
                   >
@@ -202,7 +207,7 @@ const Index: FC = () => {
                   <div className='mb-1'>Status</div>
                   <select
                     name=''
-                    defaultValue={filters?.open_now}
+                    defaultValue={query?.open_now}
                     className='form-select form-select-sm'
                     ref={(e: any) => (formRef['open_now'] = e)}
                   >
@@ -215,7 +220,7 @@ const Index: FC = () => {
                   <div className='mb-1'>Type</div>
                   <input
                     type='text'
-                    defaultValue={filters?.term}
+                    defaultValue={query?.term}
                     placeholder='e.g. "food", "restaurants", "Starbucks", "Hotel", etc'
                     className='form-control form-control-sm'
                     ref={(e: any) => (formRef['term'] = e)}
@@ -225,7 +230,7 @@ const Index: FC = () => {
                   <div className='mb-1'>Facilities</div>
                   <select
                     name=''
-                    defaultValue={filters?.attributes}
+                    defaultValue={query?.attributes || []}
                     multiple
                     size={4}
                     className='form-select form-select-sm'
@@ -251,7 +256,7 @@ const Index: FC = () => {
           limit={meta?.limit}
           showLimit={false}
           total={meta?.total > 1000 ? 1000 : meta?.total}
-          page={page}
+          page={query?.page || 1}
           onChangePage={(e: any) => {
             const queries = mapValues(query || {}, (val: any, key: any) => {
               let mapVal: any = val
@@ -263,10 +268,7 @@ const Index: FC = () => {
             if (!Object.hasOwn(queries, 'page')) {
               queries.page = e
             }
-            navigate({
-              pathname,
-              search: `?${qs.stringify(queries)}`,
-            })
+            setSearchParams(queries)
             setMeta((prev: any) => ({ ...prev, page: e }))
           }}
         />
