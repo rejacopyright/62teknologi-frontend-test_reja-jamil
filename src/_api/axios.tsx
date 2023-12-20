@@ -2,8 +2,8 @@ import ax from 'axios'
 import qs from 'qs'
 
 const axios = ax.create({
-  baseURL: `https://api.yelp.com/v3/businesses`,
-  // baseURL: `http://localhost:3001`, // My custom Node & Express to avoid Cors Origin from api.yelp.com
+  baseURL: `https://yelp-gateway.netlify.app/api`,
+  // baseURL: `http://localhost:3001`, // Custom Node & Express to avoid Cors Origin from api.yelp.com
   withCredentials: false,
   headers: {
     Accept: 'application/json',
